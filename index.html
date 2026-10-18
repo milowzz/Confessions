@@ -251,12 +251,12 @@
   // Firestore rules and App Check are what actually protect this app.
   // ==========================================================================
   var firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_PROJECT.firebasestorage.app",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBsDz8GJY0sBlmC3UwhHzoGauUYdPG9arQ",
+    authDomain: "confessions-44d63.firebaseapp.com",
+    projectId: "confessions-44d63",
+    storageBucket: "confessions-44d63.firebasestorage.app",
+    messagingSenderId: "275539794893",
+    appId: "1:275539794893:web:0c7539fbf0812fc4238284"
   };
 
   // reCAPTCHA v3 site key for App Check. Leave the placeholder to run without
@@ -582,7 +582,7 @@
       els.text.value = '';
       els.charCount.textContent = '0 / ' + MAX_LEN;
       els.charCount.dataset.over = 'false';
-      setNotice(els.composeNotice, 'Sent. It goes live once a moderator approves it.', 'ok');
+      setNotice(els.composeNotice, 'Sent.', 'ok');
       els.submitBtn.disabled = false;
       if (isAdmin) loadModerationQueue();
     }).catch(function (error) {
