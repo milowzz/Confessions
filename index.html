@@ -259,10 +259,11 @@
     appId: "1:275539794893:web:0c7539fbf0812fc4238284"
   };
 
-  // reCAPTCHA v3 site key for App Check. Leave the placeholder to run without
-  // App Check during local development; set it (and enforce App Check on
-  // Firestore in the console) before you share the link anywhere.
-  var RECAPTCHA_SITE_KEY = "YOUR_RECAPTCHA_V3_SITE_KEY";
+  // reCAPTCHA Enterprise (Fraud Defense) site key for App Check. Created in
+  // the Cloud console and registered under Firebase > Security > App Check.
+  // Enforce App Check on Firestore only after the console shows verified
+  // requests arriving.
+  var RECAPTCHA_SITE_KEY = "6LeHevUtAAAAANz72pQwstlyqHJVQ-dBvTMGYJ4R";
 
   var CONTACT_EMAIL = "CHANGE_ME@example.com";
 
@@ -281,7 +282,7 @@
 
   if (RECAPTCHA_SITE_KEY.indexOf('YOUR_') !== 0) {
     try {
-      firebase.appCheck().activate(new firebase.appCheck.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), true);
+      firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), true);
     } catch (e) {
       console.warn('App Check did not activate', e);
     }
@@ -754,7 +755,13 @@
           els.modFeed.appendChild(buildConfessionCard(doc.id, doc.data(), { moderation: true }));
         });
       })
-      .catch(function (error) { console.error('Queue load failed', error); });
+      .catch(function (error) {
+        console.error('Queue load failed', error);
+        var err = document.createElement('div');
+        err.className = 'empty-note';
+        err.textContent = 'Could not load the queue — see the browser console for details. A missing Firestore index is the usual cause.';
+        els.modFeed.appendChild(err);
+      });
   }
 
   function setStatus(id, status, card) {
