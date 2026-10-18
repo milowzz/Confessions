@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Confessions</title>
+<meta name="theme-color" content="#F1F2EE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="referrer" content="no-referrer">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #F1F2EE;
+    --surface: #FAFBF8;
+    --surface-raised: #FFFFFF;
+    --ink: #242720;
+    --ink-soft: #62665D;
+    --line: rgba(36,39,32,0.13);
+    --line-soft: rgba(36,39,32,0.07);
+    --accent: #4A5B8C;
+    --accent-ink: #FBF9F4;
+    --error: #A12D23;
+    --danger: #B13E36;
+    --ok: #3E7C74;
+    --shadow: 0 8px 24px rgba(28,31,27,0.07);
+    --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --font-body: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --radius-panel: 10px;
+    --radius-control: 8px;
+    --texture-opacity: 0.035;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #111315; --surface: #191C1F; --surface-raised: #22262A;
+      --ink: #F1F0EA; --ink-soft: #B7B7AF;
+      --accent: #8FA3DB; --accent-ink: #15181C;
+      --error: #FF8A80; --danger: #FF8A80; --ok: #7FD1C6;
+      --line: rgba(241,240,234,0.14); --line-soft: rgba(241,240,234,0.08);
+      --shadow: 0 8px 24px rgba(0,0,0,0.28); --texture-opacity: 0.04;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #111315; --surface: #191C1F; --surface-raised: #22262A;
+    --ink: #F1F0EA; --ink-soft: #B7B7AF;
+    --accent: #8FA3DB; --accent-ink: #15181C;
+    --error: #FF8A80; --danger: #FF8A80; --ok: #7FD1C6;
+    --line: rgba(241,240,234,0.14); --line-soft: rgba(241,240,234,0.08);
+    --shadow: 0 8px 24px rgba(0,0,0,0.28); --texture-opacity: 0.04;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  button, input, textarea { touch-action: manipulation; }
+  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  body {
+    position: relative; min-height: 100%;
+    background-image: radial-gradient(circle at 1px 1px, rgba(127,127,120,var(--texture-opacity)) 1px, transparent 0);
+    background-size: 18px 18px;
+  }
+  .app { max-width: 760px; margin: 0 auto; padding: 24px 24px 72px; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [tabindex="-1"]:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  button:active { transform: scale(0.99); }
+
+  .skip-link { position: fixed; top: 8px; left: 8px; z-index: 60; padding: 10px 14px; background: var(--surface-raised); color: var(--ink); border: 2px solid var(--accent); border-radius: var(--radius-control); transform: translateY(-150%); }
+  .skip-link:focus { transform: translateY(0); }
+
+  header.top {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 6px); margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .title-wrap h1 { margin: 0; font-family: var(--font-display); font-size: 36px; line-height: 1.05; font-weight: 600; }
+  .tagline { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; max-width: 46ch; }
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: none; }
+  .icon-btn:hover { border-color: var(--accent); }
+
+  .compose-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow); padding: 18px; margin-bottom: 22px; }
+  .compose-card h2 { font-family: var(--font-display); font-size: 21px; margin: 0 0 4px; font-weight: 600; }
+  .compose-sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 14px; }
+  textarea#confessionText {
+    width: 100%; min-height: 128px; resize: vertical; padding: 12px;
+    border: 1px solid var(--line); border-radius: var(--radius-control);
+    background: var(--surface-raised); color: var(--ink);
+    font: 16px/1.55 var(--font-body);
+  }
+  textarea#confessionText:focus { border-color: var(--accent); }
+  .compose-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .char-count { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .char-count[data-over="true"] { color: var(--error); font-weight: 600; }
+  .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin: 16px 0 8px; }
+  .compose-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-pill {
+    border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink);
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    min-height: 40px; font-family: var(--font-body);
+  }
+  .filter-pill:hover { border-color: var(--accent); }
+  .filter-pill.selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: var(--font-body); min-height: 44px; }
+  .btn-primary[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .ghost-btn { border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-control); padding: 9px 14px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; min-height: 40px; }
+  .ghost-btn:hover { border-color: var(--accent); }
+  .btn-text { background: transparent; border: none; color: var(--ink-soft); cursor: pointer; font-size: 13px; font-family: var(--font-body); padding: 10px 6px; min-height: 40px; }
+  .btn-text:hover { color: var(--ink); }
+
+  .notice { font-size: 13px; line-height: 1.5; min-height: 20px; margin: 0; color: var(--ink-soft); }
+  .notice[data-tone="error"] { color: var(--error); }
+  .notice[data-tone="ok"] { color: var(--ok); }
+
+  .feed-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 26px 0 12px; flex-wrap: wrap; }
+  .feed-head h2 { font-family: var(--font-display); font-size: 22px; margin: 0; font-weight: 600; }
+  .feed { display: flex; flex-direction: column; gap: 12px; }
+  .confession {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel);
+    box-shadow: var(--shadow); padding: 16px 18px;
+  }
+  .confession-text { margin: 0; font-size: 15.5px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .confession-foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: var(--line-soft); color: var(--ink-soft); }
+  .stamp { font-size: 12px; color: var(--ink-soft); }
+  .foot-spacer { flex: 1; }
+  .report-btn { background: transparent; border: none; color: var(--ink-soft); font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 6px 2px; font-family: var(--font-body); }
+  .report-btn:hover { color: var(--danger); }
+  .report-btn[disabled] { opacity: 0.6; text-decoration: none; cursor: default; }
+  .empty-note { padding: 40px 10px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+  .load-more-wrap { display: flex; justify-content: center; margin-top: 18px; }
+
+  .mod-card { border-left: 3px solid var(--accent); }
+  .mod-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn-approve { border: 1px solid var(--ok); background: transparent; color: var(--ok); border-radius: var(--radius-control); padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font-body); min-height: 40px; }
+  .btn-reject { border: 1px solid var(--danger); background: transparent; color: var(--danger); border-radius: var(--radius-control); padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font-body); min-height: 40px; }
+
+  footer.site-foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+  footer.site-foot p { margin: 0; font-size: 12px; color: var(--ink-soft); max-width: 48ch; line-height: 1.5; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.38); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; overscroll-behavior: contain; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius-panel); width: min(420px, 100%); max-height: 88vh; overflow-y: auto; padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .modal h2 { font-family: var(--font-display); margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  .modal .modal-sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  .modal-actions { display: flex; justify-content: flex-end; align-items: center; margin-top: 20px; gap: 8px; }
+
+  @media (max-width: 640px) {
+    .app { padding: 18px 14px 56px; }
+    .title-wrap h1 { font-size: 30px; }
+    .compose-card { padding: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<main class="app" id="mainContent" tabindex="-1">
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <header class="top">
+    <div class="title-wrap">
+      <h1>Confessions</h1>
+      <p class="tagline">Say the thing anonymously. Every post is read by a human before it appears.</p>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" type="button" title="Toggle theme" aria-label="Toggle light or dark theme">&#9681;</button>
+    </div>
+  </header>
+
+  <!-- ---------- Compose ---------- -->
+  <section class="compose-card" id="composeCard" aria-labelledby="composeHeading">
+    <h2 id="composeHeading">Write a confession</h2>
+    <p class="compose-sub">No account, no name, no email. Don't name other people.</p>
+
+    <label class="field-label" for="confessionText">Your confession</label>
+    <textarea id="confessionText" maxlength="1200" placeholder="Get it off your chest…"
+      aria-describedby="charCount composeNotice"></textarea>
+    <div class="compose-meta">
+      <span class="char-count" id="charCount" aria-live="off">0 / 1000</span>
+    </div>
+
+    <label class="field-label" id="categoryLabel">Category</label>
+    <div class="pill-row" id="categoryPicker" role="group" aria-labelledby="categoryLabel"></div>
+
+    <div class="compose-actions">
+      <p class="notice" id="composeNotice" role="status" aria-live="polite"></p>
+      <button class="btn-primary" id="submitBtn" type="button">Post anonymously</button>
+    </div>
+  </section>
+
+  <!-- ---------- Moderation queue (admins only) ---------- -->
+  <section id="modSection" aria-labelledby="modHeading" hidden>
+    <div class="feed-head">
+      <h2 id="modHeading">Pending review</h2>
+      <button class="ghost-btn" id="refreshQueueBtn" type="button">Refresh</button>
+    </div>
+    <div class="feed" id="modFeed"></div>
+  </section>
+
+  <!-- ---------- Public feed ---------- -->
+  <section aria-labelledby="feedHeading">
+    <div class="feed-head">
+      <h2 id="feedHeading">The feed</h2>
+    </div>
+    <div class="pill-row" id="feedFilter" role="group" aria-label="Filter by category" style="margin-bottom:16px;"></div>
+    <div class="feed" id="feed" aria-live="polite" aria-busy="true"></div>
+    <div class="load-more-wrap"><button class="ghost-btn" id="loadMoreBtn" type="button" hidden>Load more</button></div>
+  </section>
+
+  <footer class="site-foot">
+    <p>Posts are moderated before publishing. To request removal of something about you, contact
+      <a id="contactLink" href="mailto:CHANGE_ME@example.com">the site owner</a>.</p>
+    <button class="btn-text" id="modToggleBtn" type="button">Moderator sign-in</button>
+  </footer>
+</main>
+
+<!-- ---------- Report modal ---------- -->
+<div class="modal-backdrop" id="reportBackdrop" inert aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle" tabindex="-1">
+    <h2 id="reportTitle">Report this post</h2>
+    <p class="modal-sub">Reports go straight to the moderator. Tell us what's wrong with it.</p>
+    <div class="pill-row" id="reportReasons" role="group" aria-label="Reason for reporting"></div>
+    <p class="notice" id="reportNotice" role="status" aria-live="polite" style="margin-top:14px;"></p>
+    <div class="modal-actions">
+      <button class="btn-text" id="reportCancelBtn" type="button">Cancel</button>
+      <button class="btn-primary" id="reportSendBtn" type="button">Send report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ==========================================================================
+  // CONFIG — fill these in. The Firebase web config is not a secret; your
+  // Firestore rules and App Check are what actually protect this app.
+  // ==========================================================================
+  var firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.firebasestorage.app",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // reCAPTCHA v3 site key for App Check. Leave the placeholder to run without
+  // App Check during local development; set it (and enforce App Check on
+  // Firestore in the console) before you share the link anywhere.
+  var RECAPTCHA_SITE_KEY = "YOUR_RECAPTCHA_V3_SITE_KEY";
+
+  var CONTACT_EMAIL = "CHANGE_ME@example.com";
+
+  var CATEGORIES = ['General', 'Love', 'School', 'Work', 'Regret', 'Gratitude'];
+  var REPORT_REASONS = ['Names a real person', 'Harassment', 'Personal info / doxxing', 'Spam', 'Something else'];
+
+  var MIN_LEN = 10;
+  var MAX_LEN = 1000;
+  var PAGE_SIZE = 20;
+  var COOLDOWN_MS = 2 * 60 * 1000; // must match the rule in firestore.rules
+
+  // ==========================================================================
+  // Boot
+  // ==========================================================================
+  firebase.initializeApp(firebaseConfig);
+
+  if (RECAPTCHA_SITE_KEY.indexOf('YOUR_') !== 0) {
+    try {
+      firebase.appCheck().activate(new firebase.appCheck.ReCaptchaV3Provider(RECAPTCHA_SITE_KEY), true);
+    } catch (e) {
+      console.warn('App Check did not activate', e);
+    }
+  }
+
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+  var serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
+
+  var confessionsRef = db.collection('confessions');
+  var submittersRef = db.collection('submitters');
+  var rateLimitsRef = db.collection('rate_limits');
+  var reportsRef = db.collection('reports');
+  var adminsRef = db.collection('admins');
+
+  // ==========================================================================
+  // Local UI state
+  // ==========================================================================
+  var currentUser = null;
+  var isAdmin = false;
+  var selectedCategory = CATEGORIES[0];
+  var feedFilter = 'all';
+  var lastVisibleDoc = null;
+  var feedExhausted = false;
+  var loadingFeed = false;
+  var reportTargetId = null;
+  var selectedReportReason = REPORT_REASONS[0];
+  var reportedIds = {};
+
+  var els = {
+    text: document.getElementById('confessionText'),
+    charCount: document.getElementById('charCount'),
+    categoryPicker: document.getElementById('categoryPicker'),
+    submitBtn: document.getElementById('submitBtn'),
+    composeNotice: document.getElementById('composeNotice'),
+    feed: document.getElementById('feed'),
+    feedFilter: document.getElementById('feedFilter'),
+    loadMoreBtn: document.getElementById('loadMoreBtn'),
+    modSection: document.getElementById('modSection'),
+    modFeed: document.getElementById('modFeed'),
+    refreshQueueBtn: document.getElementById('refreshQueueBtn'),
+    modToggleBtn: document.getElementById('modToggleBtn'),
+    themeBtn: document.getElementById('themeBtn'),
+    contactLink: document.getElementById('contactLink'),
+    reportBackdrop: document.getElementById('reportBackdrop'),
+    reportReasons: document.getElementById('reportReasons'),
+    reportNotice: document.getElementById('reportNotice'),
+    reportSendBtn: document.getElementById('reportSendBtn'),
+    reportCancelBtn: document.getElementById('reportCancelBtn')
+  };
+
+  els.contactLink.href = 'mailto:' + CONTACT_EMAIL;
+
+  function setNotice(el, message, tone) {
+    el.textContent = message;
+    el.dataset.tone = tone || '';
+  }
+
+  // ==========================================================================
+  // Theme
+  // ==========================================================================
+  function readTheme() {
+    try { return window.localStorage.getItem('confessions-theme') || 'system'; }
+    catch (e) { return 'system'; }
+  }
+  function applyTheme(mode) {
+    if (mode === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', mode);
+    try { window.localStorage.setItem('confessions-theme', mode); } catch (e) {}
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    document.querySelector('meta[name="theme-color"]').content = bg;
+  }
+  applyTheme(readTheme());
+  els.themeBtn.addEventListener('click', function () {
+    var order = ['system', 'light', 'dark'];
+    var next = order[(order.indexOf(readTheme()) + 1) % order.length];
+    applyTheme(next);
+    els.themeBtn.setAttribute('aria-label', 'Theme: ' + next + '. Click to change.');
+  });
+
+  // ==========================================================================
+  // Overlay handling (focus trap, Escape, inert) — ported from the planner
+  // ==========================================================================
+  var activeOverlay = null;
+  var overlayReturnFocus = null;
+
+  function openOverlay(overlay, focusTarget) {
+    overlayReturnFocus = document.activeElement;
+    activeOverlay = overlay;
+    document.getElementById('mainContent').inert = true;
+    overlay.inert = false;
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.classList.add('open');
+    if (focusTarget) focusTarget.focus();
+  }
+  function closeOverlay(overlay) {
+    overlay.classList.remove('open');
+    overlay.inert = true;
+    overlay.setAttribute('aria-hidden', 'true');
+    if (activeOverlay !== overlay) return;
+    activeOverlay = null;
+    document.getElementById('mainContent').inert = false;
+    var target = overlayReturnFocus;
+    overlayReturnFocus = null;
+    if (target && target.isConnected) target.focus();
+  }
+  document.addEventListener('keydown', function (event) {
+    if (!activeOverlay) return;
+    if (event.key === 'Escape') { event.preventDefault(); closeOverlay(activeOverlay); return; }
+    if (event.key !== 'Tab') return;
+    var items = activeOverlay.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    var focusable = Array.prototype.filter.call(items, function (item) { return item.getClientRects().length > 0; });
+    if (!focusable.length) { event.preventDefault(); activeOverlay.focus(); return; }
+    var first = focusable[0], last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+  els.reportBackdrop.addEventListener('click', function (event) {
+    if (event.target === els.reportBackdrop) closeOverlay(els.reportBackdrop);
+  });
+
+  // ==========================================================================
+  // Pill helpers
+  // ==========================================================================
+  function renderPills(container, options, selected, onPick) {
+    container.innerHTML = '';
+    options.forEach(function (opt) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'filter-pill' + (opt.key === selected ? ' selected' : '');
+      btn.setAttribute('aria-pressed', String(opt.key === selected));
+      btn.textContent = opt.label;
+      btn.addEventListener('click', function () { onPick(opt.key); });
+      container.appendChild(btn);
+    });
+  }
+  function categoryOptions() {
+    return CATEGORIES.map(function (c) { return { key: c, label: c }; });
+  }
+
+  function renderCategoryPicker() {
+    renderPills(els.categoryPicker, categoryOptions(), selectedCategory, function (key) {
+      selectedCategory = key;
+      renderCategoryPicker();
+    });
+  }
+  function renderFeedFilter() {
+    var opts = [{ key: 'all', label: 'Everything' }].concat(categoryOptions());
+    renderPills(els.feedFilter, opts, feedFilter, function (key) {
+      if (key === feedFilter) return;
+      feedFilter = key;
+      renderFeedFilter();
+      resetFeed();
+      loadFeedPage();
+    });
+  }
+  renderCategoryPicker();
+  renderFeedFilter();
+
+  // ==========================================================================
+  // Character counter + soft PII warning
+  // ==========================================================================
+  var PII_PATTERNS = [
+    { re: /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, label: 'a phone number' },
+    { re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, label: 'an email address' },
+    { re: /(^|\s)@[A-Za-z0-9_]{3,}/, label: 'a social handle' }
+  ];
+  function piiWarning(text) {
+    for (var i = 0; i < PII_PATTERNS.length; i++) {
+      if (PII_PATTERNS[i].re.test(text)) return PII_PATTERNS[i].label;
+    }
+    return null;
+  }
+  els.text.addEventListener('input', function () {
+    var len = els.text.value.trim().length;
+    els.charCount.textContent = len + ' / ' + MAX_LEN;
+    els.charCount.dataset.over = String(len > MAX_LEN);
+    var warn = piiWarning(els.text.value);
+    if (warn) setNotice(els.composeNotice, 'Heads up: that looks like ' + warn + '. Posts with contact details get rejected.', 'error');
+    else if (els.composeNotice.dataset.tone === 'error') setNotice(els.composeNotice, '', '');
+  });
+
+  // ==========================================================================
+  // Auth — anonymous by default, Google only for moderators
+  // ==========================================================================
+  function enterAnonymousMode() {
+    isAdmin = false;
+    els.modSection.hidden = true;
+    els.modFeed.innerHTML = '';
+    els.modToggleBtn.textContent = 'Moderator sign-in';
+  }
+
+  function enterAdminMode() {
+    isAdmin = true;
+    els.modSection.hidden = false;
+    els.modToggleBtn.textContent = 'Sign out of moderation';
+    loadModerationQueue();
+  }
+
+  auth.onAuthStateChanged(function (user) {
+    currentUser = user;
+    if (!user) {
+      enterAnonymousMode();
+      auth.signInAnonymously().catch(function (error) {
+        console.error('Anonymous sign-in failed', error);
+        setNotice(els.composeNotice, 'Could not connect. Reload the page and try again.', 'error');
+        els.submitBtn.disabled = true;
+      });
+      return;
+    }
+    els.submitBtn.disabled = false;
+    if (user.isAnonymous) { enterAnonymousMode(); return; }
+    adminsRef.doc(user.uid).get().then(function (snap) {
+      if (snap.exists) enterAdminMode();
+      else {
+        enterAnonymousMode();
+        window.alert('That account is not a moderator on this site.');
+        auth.signOut();
+      }
+    }).catch(function (error) {
+      console.error('Admin check failed', error);
+      enterAnonymousMode();
+    });
+  });
+
+  els.modToggleBtn.addEventListener('click', function () {
+    if (isAdmin || (currentUser && !currentUser.isAnonymous)) {
+      auth.signOut();
+      return;
+    }
+    var provider = new firebase.auth.GoogleAuthProvider();
+    var flow = window.matchMedia('(max-width: 640px)').matches
+      ? auth.signInWithRedirect(provider)
+      : auth.signInWithPopup(provider);
+    if (flow && flow.catch) flow.catch(function (error) { console.error('Moderator sign-in failed', error); });
+  });
+  auth.getRedirectResult().catch(function (error) { console.error(error); });
+
+  // ==========================================================================
+  // Submitting
+  // ==========================================================================
+  function lastPostLocal() {
+    try { return Number(window.localStorage.getItem('confessions-last-post') || 0); }
+    catch (e) { return 0; }
+  }
+  function markPostedLocal() {
+    try { window.localStorage.setItem('confessions-last-post', String(Date.now())); } catch (e) {}
+  }
+
+  els.submitBtn.addEventListener('click', function () {
+    var text = els.text.value.trim();
+
+    if (!currentUser) {
+      setNotice(els.composeNotice, 'Still connecting. Give it a second and try again.', 'error');
+      return;
+    }
+    if (text.length < MIN_LEN) {
+      setNotice(els.composeNotice, 'A bit longer than that — at least ' + MIN_LEN + ' characters.', 'error');
+      els.text.focus();
+      return;
+    }
+    if (text.length > MAX_LEN) {
+      setNotice(els.composeNotice, 'Too long. Trim it to ' + MAX_LEN + ' characters or fewer.', 'error');
+      els.text.focus();
+      return;
+    }
+    var since = Date.now() - lastPostLocal();
+    if (since < COOLDOWN_MS) {
+      var wait = Math.ceil((COOLDOWN_MS - since) / 1000);
+      setNotice(els.composeNotice, 'Hold on ' + wait + 's before posting again.', 'error');
+      return;
+    }
+
+    els.submitBtn.disabled = true;
+    setNotice(els.composeNotice, 'Sending…', '');
+
+    var docRef = confessionsRef.doc();
+    var batch = db.batch();
+
+    batch.set(docRef, {
+      text: text,
+      category: selectedCategory,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+    // Private uid trail: lets you block a repeat abuser without the uid ever
+    // being readable from a public document.
+    batch.set(submittersRef.doc(docRef.id), {
+      uid: currentUser.uid,
+      createdAt: serverTimestamp()
+    });
+    batch.set(rateLimitsRef.doc(currentUser.uid), {
+      lastPostAt: serverTimestamp()
+    });
+
+    batch.commit().then(function () {
+      markPostedLocal();
+      els.text.value = '';
+      els.charCount.textContent = '0 / ' + MAX_LEN;
+      els.charCount.dataset.over = 'false';
+      setNotice(els.composeNotice, 'Sent. It goes live once a moderator approves it.', 'ok');
+      els.submitBtn.disabled = false;
+      if (isAdmin) loadModerationQueue();
+    }).catch(function (error) {
+      console.error('Submit failed', error);
+      els.submitBtn.disabled = false;
+      if (error && error.code === 'permission-denied') {
+        setNotice(els.composeNotice, 'Rejected — you may be posting too fast. Wait a couple of minutes.', 'error');
+      } else {
+        setNotice(els.composeNotice, 'Could not send that. Check your connection and try again.', 'error');
+      }
+    });
+  });
+
+  // ==========================================================================
+  // Rendering confessions
+  // ==========================================================================
+  function relativeTime(date) {
+    if (!date) return 'just now';
+    var secs = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (secs < 300) return 'just now';
+    if (secs < 3600) return Math.floor(secs / 60) + ' minutes ago';
+    if (secs < 86400) return Math.floor(secs / 3600) + ' hours ago';
+    var days = Math.floor(secs / 86400);
+    if (days === 1) return 'yesterday';
+    if (days < 30) return days + ' days ago';
+    var months = Math.floor(days / 30);
+    return months === 1 ? 'a month ago' : months + ' months ago';
+  }
+
+  // Every user-supplied string goes through textContent. Never innerHTML here.
+  function buildConfessionCard(id, data, options) {
+    var card = document.createElement('article');
+    card.className = 'confession' + (options.moderation ? ' mod-card' : '');
+
+    var p = document.createElement('p');
+    p.className = 'confession-text';
+    p.textContent = data.text || '';
+    card.appendChild(p);
+
+    var foot = document.createElement('div');
+    foot.className = 'confession-foot';
+
+    if (data.category) {
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = data.category;
+      foot.appendChild(tag);
+    }
+
+    var stamp = document.createElement('span');
+    stamp.className = 'stamp';
+    stamp.textContent = relativeTime(data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null);
+    foot.appendChild(stamp);
+
+    var spacer = document.createElement('span');
+    spacer.className = 'foot-spacer';
+    foot.appendChild(spacer);
+
+    if (!options.moderation) {
+      var report = document.createElement('button');
+      report.type = 'button';
+      report.className = 'report-btn';
+      if (reportedIds[id]) {
+        report.textContent = 'Reported';
+        report.disabled = true;
+      } else {
+        report.textContent = 'Report';
+        report.addEventListener('click', function () { openReportModal(id); });
+      }
+      foot.appendChild(report);
+    }
+
+    card.appendChild(foot);
+
+    if (options.moderation) {
+      var actions = document.createElement('div');
+      actions.className = 'mod-actions';
+
+      var approve = document.createElement('button');
+      approve.type = 'button';
+      approve.className = 'btn-approve';
+      approve.textContent = 'Approve';
+      approve.addEventListener('click', function () { setStatus(id, 'approved', card); });
+
+      var reject = document.createElement('button');
+      reject.type = 'button';
+      reject.className = 'btn-reject';
+      reject.textContent = 'Reject';
+      reject.addEventListener('click', function () { setStatus(id, 'rejected', card); });
+
+      actions.appendChild(approve);
+      actions.appendChild(reject);
+      card.appendChild(actions);
+    }
+
+    return card;
+  }
+
+  // ==========================================================================
+  // Public feed — note the status filter is REQUIRED by the security rules.
+  // A query without it is rejected outright, not silently filtered.
+  // ==========================================================================
+  function baseFeedQuery() {
+    var q = confessionsRef.where('status', '==', 'approved');
+    if (feedFilter !== 'all') q = q.where('category', '==', feedFilter);
+    return q.orderBy('createdAt', 'desc').limit(PAGE_SIZE);
+  }
+
+  function resetFeed() {
+    els.feed.innerHTML = '';
+    lastVisibleDoc = null;
+    feedExhausted = false;
+    els.loadMoreBtn.hidden = true;
+  }
+
+  function loadFeedPage() {
+    if (loadingFeed || feedExhausted) return;
+    loadingFeed = true;
+    els.feed.setAttribute('aria-busy', 'true');
+    els.loadMoreBtn.disabled = true;
+
+    var q = baseFeedQuery();
+    if (lastVisibleDoc) q = q.startAfter(lastVisibleDoc);
+
+    q.get().then(function (snap) {
+      if (snap.empty && !lastVisibleDoc) {
+        var empty = document.createElement('div');
+        empty.className = 'empty-note';
+        empty.textContent = 'Nothing here yet. Be the first.';
+        els.feed.appendChild(empty);
+      }
+      snap.forEach(function (doc) {
+        els.feed.appendChild(buildConfessionCard(doc.id, doc.data(), { moderation: false }));
+      });
+      lastVisibleDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : lastVisibleDoc;
+      feedExhausted = snap.size < PAGE_SIZE;
+      els.loadMoreBtn.hidden = feedExhausted;
+    }).catch(function (error) {
+      console.error('Feed load failed', error);
+      var err = document.createElement('div');
+      err.className = 'empty-note';
+      err.textContent = 'Could not load the feed. If this is a fresh deploy, Firestore may still need its composite index — check the console for a link.';
+      els.feed.appendChild(err);
+    }).finally(function () {
+      loadingFeed = false;
+      els.loadMoreBtn.disabled = false;
+      els.feed.setAttribute('aria-busy', 'false');
+    });
+  }
+
+  els.loadMoreBtn.addEventListener('click', loadFeedPage);
+  loadFeedPage();
+
+  // ==========================================================================
+  // Moderation queue
+  // ==========================================================================
+  function loadModerationQueue() {
+    els.modFeed.innerHTML = '';
+    confessionsRef.where('status', '==', 'pending').orderBy('createdAt', 'asc').limit(50).get()
+      .then(function (snap) {
+        if (snap.empty) {
+          var empty = document.createElement('div');
+          empty.className = 'empty-note';
+          empty.textContent = 'Queue is clear.';
+          els.modFeed.appendChild(empty);
+          return;
+        }
+        snap.forEach(function (doc) {
+          els.modFeed.appendChild(buildConfessionCard(doc.id, doc.data(), { moderation: true }));
+        });
+      })
+      .catch(function (error) { console.error('Queue load failed', error); });
+  }
+
+  function setStatus(id, status, card) {
+    confessionsRef.doc(id).update({ status: status }).then(function () {
+      card.remove();
+      if (!els.modFeed.children.length) loadModerationQueue();
+      if (status === 'approved') { resetFeed(); loadFeedPage(); }
+    }).catch(function (error) {
+      console.error('Status update failed', error);
+      window.alert('Could not update that post.');
+    });
+  }
+
+  els.refreshQueueBtn.addEventListener('click', loadModerationQueue);
+
+  // ==========================================================================
+  // Reporting
+  // ==========================================================================
+  function renderReportReasons() {
+    renderPills(
+      els.reportReasons,
+      REPORT_REASONS.map(function (r) { return { key: r, label: r }; }),
+      selectedReportReason,
+      function (key) { selectedReportReason = key; renderReportReasons(); }
+    );
+  }
+
+  function openReportModal(confessionId) {
+    reportTargetId = confessionId;
+    selectedReportReason = REPORT_REASONS[0];
+    renderReportReasons();
+    setNotice(els.reportNotice, '', '');
+    els.reportSendBtn.disabled = false;
+    openOverlay(els.reportBackdrop, els.reportBackdrop.querySelector('[role="dialog"]'));
+  }
+
+  els.reportCancelBtn.addEventListener('click', function () { closeOverlay(els.reportBackdrop); });
+
+  els.reportSendBtn.addEventListener('click', function () {
+    if (!reportTargetId || !currentUser) return;
+    els.reportSendBtn.disabled = true;
+    setNotice(els.reportNotice, 'Sending…', '');
+    reportsRef.add({
+      confessionId: reportTargetId,
+      reason: selectedReportReason,
+      createdAt: serverTimestamp()
+    }).then(function () {
+      reportedIds[reportTargetId] = true;
+      setNotice(els.reportNotice, 'Thanks — a moderator will look at it.', 'ok');
+      window.setTimeout(function () {
+        closeOverlay(els.reportBackdrop);
+        resetFeed();
+        loadFeedPage();
+      }, 900);
+    }).catch(function (error) {
+      console.error('Report failed', error);
+      els.reportSendBtn.disabled = false;
+      setNotice(els.reportNotice, 'Could not send that report.', 'error');
+    });
+  });
+})();
+</script>
+</body>
+</html>
