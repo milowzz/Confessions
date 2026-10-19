@@ -57,6 +57,7 @@
   button:focus-visible, a:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
     outline: 2px solid var(--gold); outline-offset: 2px;
   }
+  #main:focus, #main:focus-visible { outline: none; }
   .app { max-width: 430px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
 
   /* ---- header ---- */
@@ -242,6 +243,47 @@
   .dialog p.sub { margin: 0 0 16px; font-size: 13px; line-height: 1.5; color: var(--fog); }
   .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
   .btn-text { background: none; border: 0; min-height: 42px; padding: 10px 12px; color: var(--fog); font-size: 13.5px; cursor: pointer; }
+
+
+  /* ---- desktop: sidebar + content, instead of a phone column ---- */
+  @media (min-width: 900px) {
+    .app {
+      max-width: 1000px; display: grid; min-height: 100vh;
+      grid-template-columns: 236px minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+      column-gap: 52px; padding: 40px 28px 72px;
+    }
+    header.top {
+      grid-column: 1; grid-row: 1;
+      flex-direction: column; align-items: flex-start; gap: 14px; padding: 0 0 22px;
+    }
+    .mark { width: 44px; height: 44px; }
+    .wordmark { font-size: 27px; line-height: 1.02; white-space: normal; }
+    .top-spacer, .top-link { display: none; }
+
+    nav.tabs {
+      grid-column: 1; grid-row: 2; position: sticky; top: 40px; align-self: start;
+      flex-direction: column; align-items: stretch; gap: 6px;
+      max-width: none; margin: 0; padding: 0;
+      background: transparent; border-top: 0;
+    }
+    .tab {
+      flex: none; flex-direction: row; justify-content: flex-start; gap: 11px;
+      padding: 10px 12px; border-radius: 10px;
+    }
+    .tab[aria-current="page"] { background: rgba(242,237,223,0.07); }
+    .tab span { font-size: 14px; font-weight: 500; }
+    .tab[aria-current="page"] span { font-weight: 600; }
+    .tab-cta { flex: none; order: 3; margin-top: 12px; min-height: 50px; font-size: 16px; }
+
+    main { grid-column: 2; grid-row: 1 / span 2; padding-bottom: 0; }
+    .feed, .chip-row, .sort-row, .body-pad { padding-left: 0; padding-right: 0; }
+    .sort-row { max-width: 320px; }
+    .screen-title { text-align: left; padding: 0 0 16px; }
+    .body-pad { padding-top: 20px; }
+    .state { margin: 0; }
+    .confession, .card-section { padding: 20px 26px; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
@@ -439,6 +481,11 @@
     sortNew: $('sortNew'), sortTop: $('sortTop')
   };
   els.contactLink.href = 'mailto:' + CONTACT_EMAIL;
+
+  // a missing mascot.png should disappear, not show a broken-image glyph
+  document.addEventListener('error', function (e) {
+    if (e.target && e.target.tagName === 'IMG') e.target.style.display = 'none';
+  }, true);
 
   function setNotice(el, msg, tone) { el.textContent = msg; el.dataset.tone = tone || ''; }
 
