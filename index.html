@@ -3,241 +3,377 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Confessions</title>
-<meta name="theme-color" content="#F1F2EE">
+<title>UCR Confessions</title>
+<meta name="theme-color" content="#102657">
+<meta name="description" content="Anonymous confessions from UC Riverside students. Not affiliated with UC Riverside.">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="referrer" content="no-referrer">
+<link rel="icon" href="mascot.png">
+<link rel="apple-touch-icon" href="mascot.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <style>
+  /* ---- tokens: mirrors the "UCR Confessions" variable collection in Figma ---- */
   :root {
-    color-scheme: light;
-    --bg: #F1F2EE;
-    --surface: #FAFBF8;
-    --surface-raised: #FFFFFF;
-    --ink: #242720;
-    --ink-soft: #62665D;
-    --line: rgba(36,39,32,0.13);
-    --line-soft: rgba(36,39,32,0.07);
-    --accent: #4A5B8C;
-    --accent-ink: #FBF9F4;
-    --error: #A12D23;
-    --danger: #B13E36;
-    --ok: #3E7C74;
-    --shadow: 0 8px 24px rgba(28,31,27,0.07);
-    --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-    --font-body: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --radius-panel: 10px;
-    --radius-control: 8px;
-    --texture-opacity: 0.035;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --bg: #111315; --surface: #191C1F; --surface-raised: #22262A;
-      --ink: #F1F0EA; --ink-soft: #B7B7AF;
-      --accent: #8FA3DB; --accent-ink: #15181C;
-      --error: #FF8A80; --danger: #FF8A80; --ok: #7FD1C6;
-      --line: rgba(241,240,234,0.14); --line-soft: rgba(241,240,234,0.08);
-      --shadow: 0 8px 24px rgba(0,0,0,0.28); --texture-opacity: 0.04;
-    }
-  }
-  :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #111315; --surface: #191C1F; --surface-raised: #22262A;
-    --ink: #F1F0EA; --ink-soft: #B7B7AF;
-    --accent: #8FA3DB; --accent-ink: #15181C;
-    --error: #FF8A80; --danger: #FF8A80; --ok: #7FD1C6;
-    --line: rgba(241,240,234,0.14); --line-soft: rgba(241,240,234,0.08);
-    --shadow: 0 8px 24px rgba(0,0,0,0.28); --texture-opacity: 0.04;
+    --ink: #102657;
+    --raised: #173B75;
+    --chip: #1D2E4D;
+    --paper: #F2EDDF;
+    --gold: #F0B429;
+    --fog: #8E9CB5;
+    --faint: #5E6E8C;
+    --card: #FFFFFF;
+    --card-ink: #171717;
+    --hairline: rgba(242,237,223,0.11);
+    --hairline-soft: rgba(242,237,223,0.10);
+    --radius-card: 8px;
+    --radius-pill: 999px;
+    --font-display: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+    --font-body: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+    --gutter: 18px;
+    --nav-h: 76px;
   }
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  button, input, textarea { touch-action: manipulation; }
-  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  html, body { margin: 0; height: 100%; }
   body {
-    position: relative; min-height: 100%;
-    background-image: radial-gradient(circle at 1px 1px, rgba(127,127,120,var(--texture-opacity)) 1px, transparent 0);
-    background-size: 18px 18px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  .app { max-width: 760px; margin: 0 auto; padding: 24px 24px 72px; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, [tabindex="-1"]:focus-visible {
-    outline: 2px solid var(--accent); outline-offset: 2px;
+  button, input, textarea { font-family: inherit; touch-action: manipulation; }
+  button:focus-visible, a:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--gold); outline-offset: 2px;
   }
-  button:active { transform: scale(0.99); }
+  .app { max-width: 430px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
 
-  .skip-link { position: fixed; top: 8px; left: 8px; z-index: 60; padding: 10px 14px; background: var(--surface-raised); color: var(--ink); border: 2px solid var(--accent); border-radius: var(--radius-control); transform: translateY(-150%); }
-  .skip-link:focus { transform: translateY(0); }
-
+  /* ---- header ---- */
   header.top {
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 6px); margin-bottom: 18px; flex-wrap: wrap;
+    display: flex; align-items: center; gap: 9px;
+    padding: calc(env(safe-area-inset-top, 0px) + 18px) var(--gutter) 13px;
   }
-  .title-wrap h1 { margin: 0; font-family: var(--font-display); font-size: 36px; line-height: 1.05; font-weight: 600; }
-  .tagline { margin: 6px 0 0; color: var(--ink-soft); font-size: 13.5px; max-width: 46ch; }
-  .top-actions { display: flex; align-items: center; gap: 8px; }
-  .icon-btn { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: none; }
-  .icon-btn:hover { border-color: var(--accent); }
-
-  .compose-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow); padding: 18px; margin-bottom: 22px; }
-  .compose-card h2 { font-family: var(--font-display); font-size: 21px; margin: 0 0 4px; font-weight: 600; }
-  .compose-sub { color: var(--ink-soft); font-size: 13px; margin: 0 0 14px; }
-  textarea#confessionText {
-    width: 100%; min-height: 128px; resize: vertical; padding: 12px;
-    border: 1px solid var(--line); border-radius: var(--radius-control);
-    background: var(--surface-raised); color: var(--ink);
-    font: 16px/1.55 var(--font-body);
+  .mark { width: 26px; height: 26px; flex: none; object-fit: contain; }
+  .wordmark {
+    margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 18px;
+    letter-spacing: -0.035em; text-transform: uppercase; color: var(--paper); white-space: nowrap;
   }
-  textarea#confessionText:focus { border-color: var(--accent); }
-  .compose-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-  .char-count { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .char-count[data-over="true"] { color: var(--error); font-weight: 600; }
-  .field-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); margin: 16px 0 8px; }
-  .compose-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
-
-  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .filter-pill {
-    border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink);
-    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
-    min-height: 40px; font-family: var(--font-body);
+  .top-spacer { flex: 1; }
+  .top-link {
+    background: none; border: 0; padding: 10px 0; min-height: 44px;
+    color: var(--fog); font-size: 12.5px; font-weight: 500; cursor: pointer;
   }
-  .filter-pill:hover { border-color: var(--accent); }
-  .filter-pill.selected { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
-  .btn-primary { background: var(--accent); color: var(--accent-ink); border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: var(--font-body); min-height: 44px; }
-  .btn-primary[disabled] { opacity: 0.5; cursor: not-allowed; }
-  .ghost-btn { border: 1px solid var(--line); background: var(--surface-raised); color: var(--ink); border-radius: var(--radius-control); padding: 9px 14px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; min-height: 40px; }
-  .ghost-btn:hover { border-color: var(--accent); }
-  .btn-text { background: transparent; border: none; color: var(--ink-soft); cursor: pointer; font-size: 13px; font-family: var(--font-body); padding: 10px 6px; min-height: 40px; }
-  .btn-text:hover { color: var(--ink); }
+  /* ---- sort + category rows ---- */
+  .sort-row { display: flex; gap: 6px; padding: 0 var(--gutter) 12px; }
+  .sort-btn {
+    flex: 1; min-height: 38px; border-radius: var(--radius-pill); border: 1px solid transparent;
+    background: transparent; color: var(--fog); font-size: 13.5px; font-weight: 500; cursor: pointer;
+  }
+  .sort-btn[aria-pressed="false"] { border-color: var(--hairline-soft); }
+  .sort-btn[aria-pressed="true"] { background: var(--chip); color: var(--paper); font-weight: 600; }
 
-  .notice { font-size: 13px; line-height: 1.5; min-height: 20px; margin: 0; color: var(--ink-soft); }
-  .notice[data-tone="error"] { color: var(--error); }
-  .notice[data-tone="ok"] { color: var(--ok); }
+  .chip-row {
+    display: flex; gap: 6px; padding: 0 var(--gutter) 13px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; min-height: 34px; padding: 7px 13px; border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline-soft); background: transparent; color: var(--paper);
+    font-size: 12.5px; font-weight: 500; cursor: pointer; white-space: nowrap;
+  }
+  .chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 600; }
 
-  .feed-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 26px 0 12px; flex-wrap: wrap; }
-  .feed-head h2 { font-family: var(--font-display); font-size: 22px; margin: 0; font-weight: 600; }
-  .feed { display: flex; flex-direction: column; gap: 12px; }
+  /* ---- views ---- */
+  main { flex: 1 1 auto; padding-bottom: calc(var(--nav-h) + 16px); }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---- feed ---- */
+  .feed { display: flex; flex-direction: column; gap: 12px; padding: 0 var(--gutter); }
   .confession {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel);
-    box-shadow: var(--shadow); padding: 16px 18px;
+    background: var(--card); color: var(--card-ink);
+    border-radius: var(--radius-card); padding: 16px 24px;
+    display: flex; flex-direction: column; gap: 8px;
   }
-  .confession-text { margin: 0; font-size: 15.5px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .confession-foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-  .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; background: var(--line-soft); color: var(--ink-soft); }
-  .stamp { font-size: 12px; color: var(--ink-soft); }
-  .foot-spacer { flex: 1; }
-  .report-btn { background: transparent; border: none; color: var(--ink-soft); font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 6px 2px; font-family: var(--font-body); }
-  .report-btn:hover { color: var(--danger); }
-  .report-btn[disabled] { opacity: 0.6; text-decoration: none; cursor: default; }
-  .empty-note { padding: 40px 10px; text-align: center; color: var(--ink-soft); font-size: 14px; }
-  .load-more-wrap { display: flex; justify-content: center; margin-top: 18px; }
-
-  .mod-card { border-left: 3px solid var(--accent); }
-  .mod-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .btn-approve { border: 1px solid var(--ok); background: transparent; color: var(--ok); border-radius: var(--radius-control); padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font-body); min-height: 40px; }
-  .btn-reject { border: 1px solid var(--danger); background: transparent; color: var(--danger); border-radius: var(--radius-control); padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: var(--font-body); min-height: 40px; }
-
-  footer.site-foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
-  footer.site-foot p { margin: 0; font-size: 12px; color: var(--ink-soft); max-width: 48ch; line-height: 1.5; }
-
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.38); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; overscroll-behavior: contain; }
-  .modal-backdrop.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius-panel); width: min(420px, 100%); max-height: 88vh; overflow-y: auto; padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--line); }
-  .modal h2 { font-family: var(--font-display); margin: 0 0 4px; font-size: 20px; font-weight: 600; }
-  .modal .modal-sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
-  .modal-actions { display: flex; justify-content: flex-end; align-items: center; margin-top: 20px; gap: 8px; }
-
-  @media (max-width: 640px) {
-    .app { padding: 18px 14px 56px; }
-    .title-wrap h1 { font-size: 30px; }
-    .compose-card { padding: 15px; }
+  .confession p {
+    margin: 0; font-size: 17px; line-height: 1.5; color: var(--card-ink);
+    white-space: pre-wrap; overflow-wrap: anywhere;
   }
+  .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .meta .cat { font-size: 12px; font-weight: 600; color: #8A6A12; }
+  .meta .time { font-size: 12px; color: #6B6B6B; font-variant-numeric: tabular-nums; }
+  .meta .grow { flex: 1; }
+  .report-btn {
+    background: none; border: 0; padding: 6px 0; min-height: 32px;
+    color: #6B6B6B; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+  .report-btn:hover { color: #A12D23; }
+  .report-btn[disabled] { text-decoration: none; opacity: 0.6; cursor: default; }
+
+  .state {
+    margin: 0 var(--gutter); padding: 34px 24px; text-align: center;
+    color: var(--fog); font-size: 14px; line-height: 1.55;
+  }
+  .state img { width: 64px; height: 64px; object-fit: contain; display: block; margin: 0 auto 14px; }
+  .load-more { display: flex; justify-content: center; padding: 18px var(--gutter) 0; }
+  .ghost {
+    min-height: 42px; padding: 10px 18px; border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline-soft); background: transparent; color: var(--paper);
+    font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ---- compose ---- */
+  .screen-title {
+    margin: 0; padding: 20px var(--gutter) 14px;
+    font-family: var(--font-display); font-weight: 800; font-size: 22px; letter-spacing: -0.025em;
+    text-align: center; border-bottom: 1px solid var(--hairline);
+  }
+  .body-pad { padding: 20px var(--gutter); display: flex; flex-direction: column; gap: 12px; }
+  textarea#text {
+    width: 100%; min-height: 148px; resize: vertical;
+    background: var(--card); color: var(--card-ink);
+    border: 1px solid var(--hairline); border-radius: var(--radius-card);
+    padding: 24px; font-size: 16px; line-height: 1.55;
+  }
+  textarea#text::placeholder { color: #9A9A9A; }
+  .counter { display: flex; align-items: baseline; gap: 8px; }
+  .counter .grow { flex: 1; }
+  .counter span { font-size: 12px; color: var(--fog); }
+  .counter .count { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .counter .count[data-over="true"] { color: #FF8A80; font-weight: 600; }
+  .field-label { font-size: 12.5px; font-weight: 600; color: var(--fog); }
+  .cat-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cat-chip {
+    min-height: 40px; padding: 9px 15px; border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline-soft); background: transparent; color: var(--paper);
+    font-size: 13.5px; font-weight: 500; cursor: pointer;
+  }
+  .cat-chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 600; }
+  .notice {
+    background: var(--raised); border-left: 3px solid var(--gold);
+    border-radius: var(--radius-card); padding: 15px;
+  }
+  .notice p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--paper); }
+  .notice button {
+    margin-top: 9px; background: none; border: 0; padding: 4px 0; min-height: 32px;
+    color: var(--gold); font-size: 13.5px; font-weight: 600; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .cta {
+    width: 100%; min-height: 52px; padding: 15px 20px; border: 0;
+    border-radius: var(--radius-pill); background: var(--gold); color: var(--ink);
+    font-family: var(--font-display); font-weight: 800; font-size: 16px; letter-spacing: -0.02em;
+    cursor: pointer;
+  }
+  .cta[disabled] { opacity: 0.55; cursor: not-allowed; }
+  .notice-line { font-size: 13px; line-height: 1.5; min-height: 20px; margin: 0; color: var(--fog); }
+  .notice-line[data-tone="error"] { color: #FF8A80; }
+  .notice-line[data-tone="ok"] { color: #8FE3C8; }
+
+  /* ---- guidelines ---- */
+  .lead { margin: 0; font-size: 16.5px; line-height: 1.55; color: var(--paper); }
+  .card-section {
+    background: var(--card); color: var(--card-ink);
+    border-radius: var(--radius-card); padding: 16px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .card-section h2 { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .card-section p, .card-section li { margin: 0; font-size: 15px; line-height: 1.62; color: var(--card-ink); }
+  .card-section ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+  .card-section a { color: #1B4FA8; }
+  .fine { margin: 0; font-size: 12px; line-height: 1.5; color: var(--fog); }
+
+  /* ---- moderation ---- */
+  .mod-card { border-left: 4px solid var(--gold); }
+  .mod-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-approve, .btn-reject {
+    min-height: 42px; padding: 10px 18px; border-radius: var(--radius-pill);
+    font-size: 13.5px; font-weight: 600; cursor: pointer; background: transparent;
+  }
+  .btn-approve { border: 1px solid #1F7A5C; color: #1F7A5C; }
+  .btn-reject { border: 1px solid #A12D23; color: #A12D23; }
+
+  /* ---- bottom nav ---- */
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    display: flex; align-items: center; gap: 10px;
+    max-width: 430px; margin: 0 auto;
+    padding: 9px var(--gutter) calc(16px + env(safe-area-inset-bottom, 0px));
+    background: var(--ink); border-top: 1px solid var(--hairline);
+  }
+  .tab {
+    flex: 1; min-height: 46px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; background: none; border: 0; cursor: pointer; color: var(--fog);
+  }
+  .tab[aria-current="page"] { color: var(--paper); }
+  .tab svg { width: 19px; height: 19px; }
+  .tab span { font-size: 10.5px; font-weight: 600; }
+  .tab-cta {
+    flex: 1.4; min-height: 48px; border: 0; border-radius: var(--radius-pill);
+    background: var(--gold); color: var(--ink);
+    font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: -0.02em;
+    cursor: pointer;
+  }
+
+  /* ---- report dialog ---- */
+  .backdrop {
+    position: fixed; inset: 0; z-index: 40; background: rgba(5,12,28,0.6);
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  .backdrop.open { display: flex; }
+  .dialog {
+    width: min(400px, 100%); background: var(--raised); color: var(--paper);
+    border-radius: 14px; padding: 22px; max-height: 86vh; overflow-y: auto;
+  }
+  .dialog h2 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 800; font-size: 19px; letter-spacing: -0.02em; }
+  .dialog p.sub { margin: 0 0 16px; font-size: 13px; line-height: 1.5; color: var(--fog); }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .btn-text { background: none; border: 0; min-height: 42px; padding: 10px 12px; color: var(--fog); font-size: 13.5px; cursor: pointer; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
   }
 </style>
 </head>
 <body>
-<main class="app" id="mainContent" tabindex="-1">
-  <a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="app">
 
   <header class="top">
-    <div class="title-wrap">
-      <h1>Confessions</h1>
-      <p class="tagline">Say the thing anonymously. Every post is read by a human before it appears.</p>
-    </div>
-    <div class="top-actions">
-      <button class="icon-btn" id="themeBtn" type="button" title="Toggle theme" aria-label="Toggle light or dark theme">&#9681;</button>
-    </div>
+    <img class="mark" src="mascot.png" alt="">
+    <h1 class="wordmark">UCR Confessions</h1>
+    <span class="top-spacer"></span>
+    <button class="top-link" type="button" data-go="rules">Rules</button>
   </header>
 
-  <!-- ---------- Compose ---------- -->
-  <section class="compose-card" id="composeCard" aria-labelledby="composeHeading">
-    <h2 id="composeHeading">Write a confession</h2>
-    <p class="compose-sub">No account, no name, no email. Don't name other people.</p>
+  <main id="main" tabindex="-1">
 
-    <label class="field-label" for="confessionText">Your confession</label>
-    <textarea id="confessionText" maxlength="1200" placeholder="Get it off your chest…"
-      aria-describedby="charCount composeNotice"></textarea>
-    <div class="compose-meta">
-      <span class="char-count" id="charCount" aria-live="off">0 / 1000</span>
-    </div>
+    <!-- ============ FEED ============ -->
+    <section class="view active" id="view-feed" aria-label="Feed">
+      <div class="sort-row" role="group" aria-label="Sort">
+        <button class="sort-btn" id="sortNew" type="button" aria-pressed="true">New</button>
+        <button class="sort-btn" id="sortTop" type="button" aria-pressed="false" title="Needs reactions before this can sort by popularity">Top this week</button>
+      </div>
+      <div class="chip-row" id="feedFilter" role="group" aria-label="Filter by category"></div>
+      <div class="feed" id="feed" aria-live="polite" aria-busy="true"></div>
+      <div class="load-more"><button class="ghost" id="loadMore" type="button" hidden>Load more</button></div>
+    </section>
 
-    <label class="field-label" id="categoryLabel">Category</label>
-    <div class="pill-row" id="categoryPicker" role="group" aria-labelledby="categoryLabel"></div>
+    <!-- ============ CONFESS ============ -->
+    <section class="view" id="view-confess" aria-label="Write a confession">
+      <h2 class="screen-title">Get it off your chest</h2>
+      <div class="body-pad">
+        <label class="field-label" for="text">Your confession</label>
+        <textarea id="text" maxlength="1200" placeholder="No name, no account, no email." aria-describedby="count composeNotice"></textarea>
+        <div class="counter">
+          <span>Nothing here identifies you.</span>
+          <span class="grow"></span>
+          <span class="count" id="count">0 / 1000</span>
+        </div>
 
-    <div class="compose-actions">
-      <p class="notice" id="composeNotice" role="status" aria-live="polite"></p>
-      <button class="btn-primary" id="submitBtn" type="button">Post anonymously</button>
-    </div>
-  </section>
+        <span class="field-label" id="catLabel">Category</span>
+        <div class="cat-wrap" id="catPicker" role="group" aria-labelledby="catLabel"></div>
 
-  <!-- ---------- Moderation queue (admins only) ---------- -->
-  <section id="modSection" aria-labelledby="modHeading" hidden>
-    <div class="feed-head">
-      <h2 id="modHeading">Pending review</h2>
-      <button class="ghost-btn" id="refreshQueueBtn" type="button">Refresh</button>
-    </div>
-    <div class="feed" id="modFeed"></div>
-  </section>
+        <div class="notice">
+          <p>A moderator reads every post before it appears. Naming someone, contact details or anything that identifies a person gets rejected.</p>
+          <button type="button" data-go="rules">Read the guidelines</button>
+        </div>
 
-  <!-- ---------- Public feed ---------- -->
-  <section aria-labelledby="feedHeading">
-    <div class="feed-head">
-      <h2 id="feedHeading">The feed</h2>
-    </div>
-    <div class="pill-row" id="feedFilter" role="group" aria-label="Filter by category" style="margin-bottom:16px;"></div>
-    <div class="feed" id="feed" aria-live="polite" aria-busy="true"></div>
-    <div class="load-more-wrap"><button class="ghost-btn" id="loadMoreBtn" type="button" hidden>Load more</button></div>
-  </section>
+        <p class="notice-line" id="composeNotice" role="status" aria-live="polite"></p>
+        <button class="cta" id="submitBtn" type="button">Confess</button>
+      </div>
+    </section>
 
-  <footer class="site-foot">
-    <p>Posts are moderated before publishing. To request removal of something about you, contact
-      <a id="contactLink" href="mailto:CHANGE_ME@example.com">the site owner</a>.</p>
-    <button class="btn-text" id="modToggleBtn" type="button">Moderator sign-in</button>
-  </footer>
-</main>
+    <!-- ============ RULES ============ -->
+    <section class="view" id="view-rules" aria-label="Guidelines">
+      <h2 class="screen-title">Guidelines</h2>
+      <div class="body-pad">
+        <p class="lead">Post anything you want about your own life. Don't post about someone else's.</p>
 
-<!-- ---------- Report modal ---------- -->
-<div class="modal-backdrop" id="reportBackdrop" inert aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle" tabindex="-1">
+        <div class="card-section">
+          <h2>Always rejected</h2>
+          <ul>
+            <li>Real names, usernames, or enough detail to identify one person</li>
+            <li>Phone numbers, emails, addresses, class sections, schedules</li>
+            <li>Threats, harassment, or anything encouraging harm to a person</li>
+            <li>Sexual content involving anyone under 18</li>
+            <li>Accusations of a crime against an identifiable person</li>
+            <li>Spam, advertising, or the same post over and over</li>
+          </ul>
+        </div>
+
+        <div class="card-section">
+          <h2>How it works</h2>
+          <p>Every post is read by a moderator before it appears. Nothing publishes automatically. Expect a wait.</p>
+          <p>Rejected posts are not published and not shown to anyone else. There is no appeal and no notification — rewrite it and post again.</p>
+        </div>
+
+        <div class="card-section">
+          <h2>What anonymous means here</h2>
+          <p>No account, no email, no name. Nothing shown on a post identifies who wrote it, and other readers cannot find out.</p>
+          <p>The site does keep an anonymous browser ID with each submission, readable only by the moderator, so a repeat abuser can be blocked. It is not linked to your name and it is not published.</p>
+        </div>
+
+        <div class="card-section">
+          <h2>Something about you is up here</h2>
+          <p>Use the report link on the post, or email <a id="contactLink" href="mailto:CHANGE_ME@example.com">the site owner</a>. Say which post. It comes down while it is reviewed.</p>
+        </div>
+
+        <div class="card-section">
+          <h2>If you are struggling</h2>
+          <p>This site is not a crisis service and nobody is monitoring it for emergencies. UCR Counseling &amp; Psychological Services is at (951) 827-5531. For urgent help any time, call or text 988.</p>
+        </div>
+
+        <p class="fine">This is a student-run site. It is not affiliated with, endorsed by, or operated by the University of California, Riverside.</p>
+        <p class="fine"><button class="btn-text" id="modToggle" type="button" style="padding-left:0">Moderator sign-in</button></p>
+      </div>
+    </section>
+
+    <!-- ============ MODERATION ============ -->
+    <section class="view" id="view-mod" aria-label="Pending review" hidden>
+      <h2 class="screen-title">Pending review</h2>
+      <div class="body-pad">
+        <button class="ghost" id="refreshQueue" type="button" style="align-self:flex-start">Refresh</button>
+        <div class="feed" id="modFeed" style="padding:0"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabs" aria-label="Main">
+    <button class="tab" type="button" data-go="feed" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/></svg>
+      <span>Feed</span>
+    </button>
+    <button class="tab-cta" type="button" data-go="confess">Confess</button>
+    <button class="tab" type="button" data-go="rules">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+      <span>Rules</span>
+    </button>
+  </nav>
+</div>
+
+<div class="backdrop" id="reportBackdrop" inert aria-hidden="true">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="reportTitle" tabindex="-1">
     <h2 id="reportTitle">Report this post</h2>
-    <p class="modal-sub">Reports go straight to the moderator. Tell us what's wrong with it.</p>
-    <div class="pill-row" id="reportReasons" role="group" aria-label="Reason for reporting"></div>
-    <p class="notice" id="reportNotice" role="status" aria-live="polite" style="margin-top:14px;"></p>
-    <div class="modal-actions">
-      <button class="btn-text" id="reportCancelBtn" type="button">Cancel</button>
-      <button class="btn-primary" id="reportSendBtn" type="button">Send report</button>
+    <p class="sub">Reports go straight to the moderator.</p>
+    <div class="cat-wrap" id="reportReasons" role="group" aria-label="Reason"></div>
+    <p class="notice-line" id="reportNotice" role="status" aria-live="polite" style="margin-top:14px"></p>
+    <div class="dialog-actions">
+      <button class="btn-text" id="reportCancel" type="button">Cancel</button>
+      <button class="cta" id="reportSend" type="button" style="width:auto;min-height:44px;padding:12px 20px;font-size:14px">Send report</button>
     </div>
   </div>
 </div>
@@ -247,8 +383,7 @@
   'use strict';
 
   // ==========================================================================
-  // CONFIG — fill these in. The Firebase web config is not a secret; your
-  // Firestore rules and App Check are what actually protect this app.
+  // CONFIG
   // ==========================================================================
   var firebaseConfig = {
     apiKey: "AIzaSyBsDz8GJY0sBlmC3UwhHzoGauUYdPG9arQ",
@@ -258,569 +393,411 @@
     messagingSenderId: "275539794893",
     appId: "1:275539794893:web:0c7539fbf0812fc4238284"
   };
-
-  // reCAPTCHA Enterprise (Fraud Defense) site key for App Check. Created in
-  // the Cloud console and registered under Firebase > Security > App Check.
-  // Enforce App Check on Firestore only after the console shows verified
-  // requests arriving.
   var RECAPTCHA_SITE_KEY = "6LeHevUtAAAAANz72pQwstlyqHJVQ-dBvTMGYJ4R";
-
   var CONTACT_EMAIL = "CHANGE_ME@example.com";
 
-  var CATEGORIES = ['General', 'Love', 'School', 'Work', 'Regret', 'Gratitude'];
-  var REPORT_REASONS = ['Names a real person', 'Harassment', 'Personal info / doxxing', 'Spam', 'Something else'];
+  // Must match the `category in [...]` list in firestore.rules.
+  var CATEGORIES = ['Classes', 'Greek life', 'Dating', 'Dining', 'Gym', 'Campus life', 'General'];
+  var REPORT_REASONS = ['Names a real person', 'Harassment', 'Personal info', 'Spam', 'Something else'];
 
-  var MIN_LEN = 10;
-  var MAX_LEN = 1000;
-  var PAGE_SIZE = 20;
-  var COOLDOWN_MS = 2 * 60 * 1000; // must match the rule in firestore.rules
+  var MIN_LEN = 10, MAX_LEN = 1000, PAGE_SIZE = 20;
+  var COOLDOWN_MS = 2 * 60 * 1000;
 
   // ==========================================================================
   // Boot
   // ==========================================================================
   firebase.initializeApp(firebaseConfig);
-
   if (RECAPTCHA_SITE_KEY.indexOf('YOUR_') !== 0) {
     try {
       firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), true);
-    } catch (e) {
-      console.warn('App Check did not activate', e);
-    }
+    } catch (e) { console.warn('App Check did not activate', e); }
   }
-
   var auth = firebase.auth();
   var db = firebase.firestore();
   var serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
-
   var confessionsRef = db.collection('confessions');
   var submittersRef = db.collection('submitters');
   var rateLimitsRef = db.collection('rate_limits');
   var reportsRef = db.collection('reports');
   var adminsRef = db.collection('admins');
 
-  // ==========================================================================
-  // Local UI state
-  // ==========================================================================
-  var currentUser = null;
-  var isAdmin = false;
+  var currentUser = null, isAdmin = false;
   var selectedCategory = CATEGORIES[0];
   var feedFilter = 'all';
-  var lastVisibleDoc = null;
-  var feedExhausted = false;
-  var loadingFeed = false;
-  var reportTargetId = null;
-  var selectedReportReason = REPORT_REASONS[0];
-  var reportedIds = {};
+  var lastDoc = null, feedDone = false, feedLoading = false;
+  var reportTarget = null, reportReason = REPORT_REASONS[0], reported = {};
 
+  var $ = function (id) { return document.getElementById(id); };
   var els = {
-    text: document.getElementById('confessionText'),
-    charCount: document.getElementById('charCount'),
-    categoryPicker: document.getElementById('categoryPicker'),
-    submitBtn: document.getElementById('submitBtn'),
-    composeNotice: document.getElementById('composeNotice'),
-    feed: document.getElementById('feed'),
-    feedFilter: document.getElementById('feedFilter'),
-    loadMoreBtn: document.getElementById('loadMoreBtn'),
-    modSection: document.getElementById('modSection'),
-    modFeed: document.getElementById('modFeed'),
-    refreshQueueBtn: document.getElementById('refreshQueueBtn'),
-    modToggleBtn: document.getElementById('modToggleBtn'),
-    themeBtn: document.getElementById('themeBtn'),
-    contactLink: document.getElementById('contactLink'),
-    reportBackdrop: document.getElementById('reportBackdrop'),
-    reportReasons: document.getElementById('reportReasons'),
-    reportNotice: document.getElementById('reportNotice'),
-    reportSendBtn: document.getElementById('reportSendBtn'),
-    reportCancelBtn: document.getElementById('reportCancelBtn')
+    feed: $('feed'), feedFilter: $('feedFilter'), loadMore: $('loadMore'),
+    text: $('text'), count: $('count'), catPicker: $('catPicker'),
+    submitBtn: $('submitBtn'), composeNotice: $('composeNotice'),
+    modFeed: $('modFeed'), refreshQueue: $('refreshQueue'), modToggle: $('modToggle'),
+    contactLink: $('contactLink'),
+    reportBackdrop: $('reportBackdrop'), reportReasons: $('reportReasons'),
+    reportNotice: $('reportNotice'), reportSend: $('reportSend'), reportCancel: $('reportCancel'),
+    sortNew: $('sortNew'), sortTop: $('sortTop')
   };
-
   els.contactLink.href = 'mailto:' + CONTACT_EMAIL;
 
-  function setNotice(el, message, tone) {
-    el.textContent = message;
-    el.dataset.tone = tone || '';
-  }
+  function setNotice(el, msg, tone) { el.textContent = msg; el.dataset.tone = tone || ''; }
 
   // ==========================================================================
-  // Theme
+  // View switching
   // ==========================================================================
-  function readTheme() {
-    try { return window.localStorage.getItem('confessions-theme') || 'system'; }
-    catch (e) { return 'system'; }
+  var VIEWS = ['feed', 'confess', 'rules', 'mod'];
+  function show(name) {
+    VIEWS.forEach(function (v) {
+      var sec = $('view-' + v);
+      if (sec) sec.classList.toggle('active', v === name);
+    });
+    document.querySelectorAll('.tab').forEach(function (t) {
+      if (t.dataset.go === name) t.setAttribute('aria-current', 'page');
+      else t.removeAttribute('aria-current');
+    });
+    window.scrollTo(0, 0);
+    $('main').focus({ preventScroll: true });
   }
-  function applyTheme(mode) {
-    if (mode === 'system') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme', mode);
-    try { window.localStorage.setItem('confessions-theme', mode); } catch (e) {}
-    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-    document.querySelector('meta[name="theme-color"]').content = bg;
-  }
-  applyTheme(readTheme());
-  els.themeBtn.addEventListener('click', function () {
-    var order = ['system', 'light', 'dark'];
-    var next = order[(order.indexOf(readTheme()) + 1) % order.length];
-    applyTheme(next);
-    els.themeBtn.setAttribute('aria-label', 'Theme: ' + next + '. Click to change.');
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go]');
+    if (t) show(t.dataset.go);
   });
 
   // ==========================================================================
-  // Overlay handling (focus trap, Escape, inert) — ported from the planner
+  // Chips
   // ==========================================================================
-  var activeOverlay = null;
-  var overlayReturnFocus = null;
-
-  function openOverlay(overlay, focusTarget) {
-    overlayReturnFocus = document.activeElement;
-    activeOverlay = overlay;
-    document.getElementById('mainContent').inert = true;
-    overlay.inert = false;
-    overlay.setAttribute('aria-hidden', 'false');
-    overlay.classList.add('open');
-    if (focusTarget) focusTarget.focus();
-  }
-  function closeOverlay(overlay) {
-    overlay.classList.remove('open');
-    overlay.inert = true;
-    overlay.setAttribute('aria-hidden', 'true');
-    if (activeOverlay !== overlay) return;
-    activeOverlay = null;
-    document.getElementById('mainContent').inert = false;
-    var target = overlayReturnFocus;
-    overlayReturnFocus = null;
-    if (target && target.isConnected) target.focus();
-  }
-  document.addEventListener('keydown', function (event) {
-    if (!activeOverlay) return;
-    if (event.key === 'Escape') { event.preventDefault(); closeOverlay(activeOverlay); return; }
-    if (event.key !== 'Tab') return;
-    var items = activeOverlay.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
-    var focusable = Array.prototype.filter.call(items, function (item) { return item.getClientRects().length > 0; });
-    if (!focusable.length) { event.preventDefault(); activeOverlay.focus(); return; }
-    var first = focusable[0], last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
-  });
-  els.reportBackdrop.addEventListener('click', function (event) {
-    if (event.target === els.reportBackdrop) closeOverlay(els.reportBackdrop);
-  });
-
-  // ==========================================================================
-  // Pill helpers
-  // ==========================================================================
-  function renderPills(container, options, selected, onPick) {
+  function renderChips(container, options, selected, cls, onPick) {
     container.innerHTML = '';
     options.forEach(function (opt) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'filter-pill' + (opt.key === selected ? ' selected' : '');
-      btn.setAttribute('aria-pressed', String(opt.key === selected));
-      btn.textContent = opt.label;
-      btn.addEventListener('click', function () { onPick(opt.key); });
-      container.appendChild(btn);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.setAttribute('aria-pressed', String(opt.key === selected));
+      b.textContent = opt.label;
+      b.addEventListener('click', function () { onPick(opt.key); });
+      container.appendChild(b);
     });
   }
-  function categoryOptions() {
-    return CATEGORIES.map(function (c) { return { key: c, label: c }; });
-  }
+  function catOpts() { return CATEGORIES.map(function (c) { return { key: c, label: c }; }); }
 
-  function renderCategoryPicker() {
-    renderPills(els.categoryPicker, categoryOptions(), selectedCategory, function (key) {
-      selectedCategory = key;
-      renderCategoryPicker();
-    });
-  }
   function renderFeedFilter() {
-    var opts = [{ key: 'all', label: 'Everything' }].concat(categoryOptions());
-    renderPills(els.feedFilter, opts, feedFilter, function (key) {
-      if (key === feedFilter) return;
-      feedFilter = key;
-      renderFeedFilter();
-      resetFeed();
-      loadFeedPage();
+    renderChips(els.feedFilter, [{ key: 'all', label: 'All' }].concat(catOpts()), feedFilter, 'chip', function (k) {
+      if (k === feedFilter) return;
+      feedFilter = k; renderFeedFilter(); resetFeed(); loadFeed();
     });
   }
-  renderCategoryPicker();
+  function renderCatPicker() {
+    renderChips(els.catPicker, catOpts(), selectedCategory, 'cat-chip', function (k) {
+      selectedCategory = k; renderCatPicker();
+    });
+  }
   renderFeedFilter();
+  renderCatPicker();
+
+  // "Top this week" needs reaction counts, which do not exist yet.
+  els.sortTop.addEventListener('click', function () {
+    setNotice(els.composeNotice, '', '');
+    alert('Sorting by popularity needs reactions, which are not built yet.');
+  });
 
   // ==========================================================================
-  // Character counter + soft PII warning
+  // Compose
   // ==========================================================================
-  var PII_PATTERNS = [
+  var PII = [
     { re: /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, label: 'a phone number' },
     { re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, label: 'an email address' },
     { re: /(^|\s)@[A-Za-z0-9_]{3,}/, label: 'a social handle' }
   ];
-  function piiWarning(text) {
-    for (var i = 0; i < PII_PATTERNS.length; i++) {
-      if (PII_PATTERNS[i].re.test(text)) return PII_PATTERNS[i].label;
-    }
-    return null;
-  }
   els.text.addEventListener('input', function () {
     var len = els.text.value.trim().length;
-    els.charCount.textContent = len + ' / ' + MAX_LEN;
-    els.charCount.dataset.over = String(len > MAX_LEN);
-    var warn = piiWarning(els.text.value);
-    if (warn) setNotice(els.composeNotice, 'Heads up: that looks like ' + warn + '. Posts with contact details get rejected.', 'error');
+    els.count.textContent = len + ' / ' + MAX_LEN;
+    els.count.dataset.over = String(len > MAX_LEN);
+    var hit = null;
+    for (var i = 0; i < PII.length; i++) if (PII[i].re.test(els.text.value)) { hit = PII[i].label; break; }
+    if (hit) setNotice(els.composeNotice, 'That looks like ' + hit + '. Posts with contact details get rejected.', 'error');
     else if (els.composeNotice.dataset.tone === 'error') setNotice(els.composeNotice, '', '');
   });
 
-  // ==========================================================================
-  // Auth — anonymous by default, Google only for moderators
-  // ==========================================================================
-  function enterAnonymousMode() {
-    isAdmin = false;
-    els.modSection.hidden = true;
-    els.modFeed.innerHTML = '';
-    els.modToggleBtn.textContent = 'Moderator sign-in';
-  }
-
-  function enterAdminMode() {
-    isAdmin = true;
-    els.modSection.hidden = false;
-    els.modToggleBtn.textContent = 'Sign out of moderation';
-    loadModerationQueue();
-  }
-
-  auth.onAuthStateChanged(function (user) {
-    currentUser = user;
-    if (!user) {
-      enterAnonymousMode();
-      auth.signInAnonymously().catch(function (error) {
-        console.error('Anonymous sign-in failed', error);
-        setNotice(els.composeNotice, 'Could not connect. Reload the page and try again.', 'error');
-        els.submitBtn.disabled = true;
-      });
-      return;
-    }
-    els.submitBtn.disabled = false;
-    if (user.isAnonymous) { enterAnonymousMode(); return; }
-    adminsRef.doc(user.uid).get().then(function (snap) {
-      if (snap.exists) enterAdminMode();
-      else {
-        enterAnonymousMode();
-        window.alert('That account is not a moderator on this site.');
-        auth.signOut();
-      }
-    }).catch(function (error) {
-      console.error('Admin check failed', error);
-      enterAnonymousMode();
-    });
-  });
-
-  els.modToggleBtn.addEventListener('click', function () {
-    if (isAdmin || (currentUser && !currentUser.isAnonymous)) {
-      auth.signOut();
-      return;
-    }
-    var provider = new firebase.auth.GoogleAuthProvider();
-    var flow = window.matchMedia('(max-width: 640px)').matches
-      ? auth.signInWithRedirect(provider)
-      : auth.signInWithPopup(provider);
-    if (flow && flow.catch) flow.catch(function (error) { console.error('Moderator sign-in failed', error); });
-  });
-  auth.getRedirectResult().catch(function (error) { console.error(error); });
-
-  // ==========================================================================
-  // Submitting
-  // ==========================================================================
-  function lastPostLocal() {
-    try { return Number(window.localStorage.getItem('confessions-last-post') || 0); }
-    catch (e) { return 0; }
-  }
-  function markPostedLocal() {
-    try { window.localStorage.setItem('confessions-last-post', String(Date.now())); } catch (e) {}
-  }
+  function lastPost() { try { return Number(localStorage.getItem('ucrc-last-post') || 0); } catch (e) { return 0; } }
+  function markPosted() { try { localStorage.setItem('ucrc-last-post', String(Date.now())); } catch (e) {} }
 
   els.submitBtn.addEventListener('click', function () {
     var text = els.text.value.trim();
-
-    if (!currentUser) {
-      setNotice(els.composeNotice, 'Still connecting. Give it a second and try again.', 'error');
-      return;
-    }
-    if (text.length < MIN_LEN) {
-      setNotice(els.composeNotice, 'A bit longer than that — at least ' + MIN_LEN + ' characters.', 'error');
-      els.text.focus();
-      return;
-    }
-    if (text.length > MAX_LEN) {
-      setNotice(els.composeNotice, 'Too long. Trim it to ' + MAX_LEN + ' characters or fewer.', 'error');
-      els.text.focus();
-      return;
-    }
-    var since = Date.now() - lastPostLocal();
+    if (!currentUser) { setNotice(els.composeNotice, 'Still connecting. Try again in a second.', 'error'); return; }
+    if (text.length < MIN_LEN) { setNotice(els.composeNotice, 'A bit longer than that — at least ' + MIN_LEN + ' characters.', 'error'); els.text.focus(); return; }
+    if (text.length > MAX_LEN) { setNotice(els.composeNotice, 'Too long. Trim it to ' + MAX_LEN + ' characters.', 'error'); els.text.focus(); return; }
+    var since = Date.now() - lastPost();
     if (since < COOLDOWN_MS) {
-      var wait = Math.ceil((COOLDOWN_MS - since) / 1000);
-      setNotice(els.composeNotice, 'Hold on ' + wait + 's before posting again.', 'error');
+      setNotice(els.composeNotice, 'Hold on ' + Math.ceil((COOLDOWN_MS - since) / 1000) + 's before posting again.', 'error');
       return;
     }
 
     els.submitBtn.disabled = true;
     setNotice(els.composeNotice, 'Sending…', '');
 
-    var docRef = confessionsRef.doc();
+    var ref = confessionsRef.doc();
     var batch = db.batch();
-
-    batch.set(docRef, {
-      text: text,
-      category: selectedCategory,
-      status: 'pending',
-      createdAt: serverTimestamp()
-    });
-    // Private uid trail: lets you block a repeat abuser without the uid ever
-    // being readable from a public document.
-    batch.set(submittersRef.doc(docRef.id), {
-      uid: currentUser.uid,
-      createdAt: serverTimestamp()
-    });
-    batch.set(rateLimitsRef.doc(currentUser.uid), {
-      lastPostAt: serverTimestamp()
-    });
+    batch.set(ref, { text: text, category: selectedCategory, status: 'pending', createdAt: serverTimestamp() });
+    batch.set(submittersRef.doc(ref.id), { uid: currentUser.uid, createdAt: serverTimestamp() });
+    batch.set(rateLimitsRef.doc(currentUser.uid), { lastPostAt: serverTimestamp() });
 
     batch.commit().then(function () {
-      markPostedLocal();
+      markPosted();
       els.text.value = '';
-      els.charCount.textContent = '0 / ' + MAX_LEN;
-      els.charCount.dataset.over = 'false';
+      els.count.textContent = '0 / ' + MAX_LEN;
+      els.count.dataset.over = 'false';
       setNotice(els.composeNotice, 'Sent.', 'ok');
       els.submitBtn.disabled = false;
-      if (isAdmin) loadModerationQueue();
-    }).catch(function (error) {
-      console.error('Submit failed', error);
+      if (isAdmin) loadQueue();
+    }).catch(function (err) {
+      console.error('Submit failed', err);
       els.submitBtn.disabled = false;
-      if (error && error.code === 'permission-denied') {
-        setNotice(els.composeNotice, 'Rejected — you may be posting too fast. Wait a couple of minutes.', 'error');
-      } else {
-        setNotice(els.composeNotice, 'Could not send that. Check your connection and try again.', 'error');
-      }
+      setNotice(els.composeNotice,
+        err && err.code === 'permission-denied'
+          ? 'Rejected — you may be posting too fast. Wait a couple of minutes.'
+          : 'Could not send that. Check your connection and try again.', 'error');
     });
   });
 
   // ==========================================================================
-  // Rendering confessions
+  // Rendering
   // ==========================================================================
-  function relativeTime(date) {
-    if (!date) return 'just now';
-    var secs = Math.floor((Date.now() - date.getTime()) / 1000);
-    if (secs < 300) return 'just now';
-    if (secs < 3600) return Math.floor(secs / 60) + ' minutes ago';
-    if (secs < 86400) return Math.floor(secs / 3600) + ' hours ago';
-    var days = Math.floor(secs / 86400);
+  function relTime(d) {
+    if (!d) return 'just now';
+    var s = Math.floor((Date.now() - d.getTime()) / 1000);
+    if (s < 300) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + 'm';
+    if (s < 86400) return Math.floor(s / 3600) + 'h';
+    var days = Math.floor(s / 86400);
     if (days === 1) return 'yesterday';
-    if (days < 30) return days + ' days ago';
-    var months = Math.floor(days / 30);
-    return months === 1 ? 'a month ago' : months + ' months ago';
+    if (days < 30) return days + 'd';
+    var mo = Math.floor(days / 30);
+    return mo === 1 ? 'a month ago' : mo + ' months ago';
   }
 
-  // Every user-supplied string goes through textContent. Never innerHTML here.
-  function buildConfessionCard(id, data, options) {
-    var card = document.createElement('article');
-    card.className = 'confession' + (options.moderation ? ' mod-card' : '');
+  // Every user string goes through textContent. Never innerHTML here.
+  function card(id, data, moderation) {
+    var art = document.createElement('article');
+    art.className = 'confession' + (moderation ? ' mod-card' : '');
 
     var p = document.createElement('p');
-    p.className = 'confession-text';
     p.textContent = data.text || '';
-    card.appendChild(p);
+    art.appendChild(p);
 
-    var foot = document.createElement('div');
-    foot.className = 'confession-foot';
-
+    var meta = document.createElement('div');
+    meta.className = 'meta';
     if (data.category) {
-      var tag = document.createElement('span');
-      tag.className = 'tag';
-      tag.textContent = data.category;
-      foot.appendChild(tag);
+      var c = document.createElement('span');
+      c.className = 'cat';
+      c.textContent = data.category;
+      meta.appendChild(c);
     }
+    var t = document.createElement('span');
+    t.className = 'time';
+    t.textContent = relTime(data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null);
+    meta.appendChild(t);
+    var grow = document.createElement('span');
+    grow.className = 'grow';
+    meta.appendChild(grow);
 
-    var stamp = document.createElement('span');
-    stamp.className = 'stamp';
-    stamp.textContent = relativeTime(data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null);
-    foot.appendChild(stamp);
-
-    var spacer = document.createElement('span');
-    spacer.className = 'foot-spacer';
-    foot.appendChild(spacer);
-
-    if (!options.moderation) {
-      var report = document.createElement('button');
-      report.type = 'button';
-      report.className = 'report-btn';
-      if (reportedIds[id]) {
-        report.textContent = 'Reported';
-        report.disabled = true;
-      } else {
-        report.textContent = 'Report';
-        report.addEventListener('click', function () { openReportModal(id); });
-      }
-      foot.appendChild(report);
+    if (!moderation) {
+      var rb = document.createElement('button');
+      rb.type = 'button';
+      rb.className = 'report-btn';
+      if (reported[id]) { rb.textContent = 'Reported'; rb.disabled = true; }
+      else { rb.textContent = 'Report'; rb.addEventListener('click', function () { openReport(id); }); }
+      meta.appendChild(rb);
     }
+    art.appendChild(meta);
 
-    card.appendChild(foot);
-
-    if (options.moderation) {
-      var actions = document.createElement('div');
-      actions.className = 'mod-actions';
-
-      var approve = document.createElement('button');
-      approve.type = 'button';
-      approve.className = 'btn-approve';
-      approve.textContent = 'Approve';
-      approve.addEventListener('click', function () { setStatus(id, 'approved', card); });
-
-      var reject = document.createElement('button');
-      reject.type = 'button';
-      reject.className = 'btn-reject';
-      reject.textContent = 'Reject';
-      reject.addEventListener('click', function () { setStatus(id, 'rejected', card); });
-
-      actions.appendChild(approve);
-      actions.appendChild(reject);
-      card.appendChild(actions);
+    if (moderation) {
+      var acts = document.createElement('div');
+      acts.className = 'mod-actions';
+      var ok = document.createElement('button');
+      ok.type = 'button'; ok.className = 'btn-approve'; ok.textContent = 'Approve';
+      ok.addEventListener('click', function () { setStatus(id, 'approved', art); });
+      var no = document.createElement('button');
+      no.type = 'button'; no.className = 'btn-reject'; no.textContent = 'Reject';
+      no.addEventListener('click', function () {
+        if (window.confirm('Reject this post? It stays in the database but is never published.')) setStatus(id, 'rejected', art);
+      });
+      acts.appendChild(ok); acts.appendChild(no);
+      art.appendChild(acts);
     }
+    return art;
+  }
 
-    return card;
+  function emptyState(message, sub) {
+    var d = document.createElement('div');
+    d.className = 'state';
+    var img = document.createElement('img');
+    img.src = 'mascot.png'; img.alt = '';
+    d.appendChild(img);
+    var p = document.createElement('p');
+    p.style.margin = '0';
+    p.textContent = message;
+    d.appendChild(p);
+    if (sub) {
+      var s = document.createElement('p');
+      s.style.cssText = 'margin:8px 0 0;font-size:13px';
+      s.textContent = sub;
+      d.appendChild(s);
+    }
+    return d;
   }
 
   // ==========================================================================
-  // Public feed — note the status filter is REQUIRED by the security rules.
-  // A query without it is rejected outright, not silently filtered.
+  // Feed — the status filter is REQUIRED by the security rules
   // ==========================================================================
-  function baseFeedQuery() {
+  function baseQuery() {
     var q = confessionsRef.where('status', '==', 'approved');
     if (feedFilter !== 'all') q = q.where('category', '==', feedFilter);
     return q.orderBy('createdAt', 'desc').limit(PAGE_SIZE);
   }
-
   function resetFeed() {
-    els.feed.innerHTML = '';
-    lastVisibleDoc = null;
-    feedExhausted = false;
-    els.loadMoreBtn.hidden = true;
+    els.feed.innerHTML = ''; lastDoc = null; feedDone = false; els.loadMore.hidden = true;
   }
-
-  function loadFeedPage() {
-    if (loadingFeed || feedExhausted) return;
-    loadingFeed = true;
+  function loadFeed() {
+    if (feedLoading || feedDone) return;
+    feedLoading = true;
     els.feed.setAttribute('aria-busy', 'true');
-    els.loadMoreBtn.disabled = true;
-
-    var q = baseFeedQuery();
-    if (lastVisibleDoc) q = q.startAfter(lastVisibleDoc);
-
+    els.loadMore.disabled = true;
+    var q = baseQuery();
+    if (lastDoc) q = q.startAfter(lastDoc);
     q.get().then(function (snap) {
-      if (snap.empty && !lastVisibleDoc) {
-        var empty = document.createElement('div');
-        empty.className = 'empty-note';
-        empty.textContent = 'Nothing here yet. Be the first.';
-        els.feed.appendChild(empty);
+      if (snap.empty && !lastDoc) {
+        els.feed.appendChild(emptyState('Nothing here yet.', 'Be the first one to say something.'));
       }
-      snap.forEach(function (doc) {
-        els.feed.appendChild(buildConfessionCard(doc.id, doc.data(), { moderation: false }));
-      });
-      lastVisibleDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : lastVisibleDoc;
-      feedExhausted = snap.size < PAGE_SIZE;
-      els.loadMoreBtn.hidden = feedExhausted;
-    }).catch(function (error) {
-      console.error('Feed load failed', error);
-      var err = document.createElement('div');
-      err.className = 'empty-note';
-      err.textContent = 'Could not load the feed. If this is a fresh deploy, Firestore may still need its composite index — check the console for a link.';
-      els.feed.appendChild(err);
+      snap.forEach(function (doc) { els.feed.appendChild(card(doc.id, doc.data(), false)); });
+      if (snap.docs.length) lastDoc = snap.docs[snap.docs.length - 1];
+      feedDone = snap.size < PAGE_SIZE;
+      els.loadMore.hidden = feedDone;
+    }).catch(function (err) {
+      console.error('Feed load failed', err);
+      els.feed.appendChild(emptyState('Could not load the feed.', 'If this is a fresh deploy, Firestore may still be building an index — check the browser console.'));
     }).finally(function () {
-      loadingFeed = false;
-      els.loadMoreBtn.disabled = false;
+      feedLoading = false;
+      els.loadMore.disabled = false;
       els.feed.setAttribute('aria-busy', 'false');
     });
   }
-
-  els.loadMoreBtn.addEventListener('click', loadFeedPage);
-  loadFeedPage();
+  els.loadMore.addEventListener('click', loadFeed);
+  loadFeed();
 
   // ==========================================================================
-  // Moderation queue
+  // Moderation
   // ==========================================================================
-  function loadModerationQueue() {
+  function loadQueue() {
     els.modFeed.innerHTML = '';
     confessionsRef.where('status', '==', 'pending').orderBy('createdAt', 'asc').limit(50).get()
       .then(function (snap) {
-        if (snap.empty) {
-          var empty = document.createElement('div');
-          empty.className = 'empty-note';
-          empty.textContent = 'Queue is clear.';
-          els.modFeed.appendChild(empty);
-          return;
-        }
-        snap.forEach(function (doc) {
-          els.modFeed.appendChild(buildConfessionCard(doc.id, doc.data(), { moderation: true }));
-        });
+        if (snap.empty) { els.modFeed.appendChild(emptyState('Queue is clear.')); return; }
+        snap.forEach(function (doc) { els.modFeed.appendChild(card(doc.id, doc.data(), true)); });
       })
-      .catch(function (error) {
-        console.error('Queue load failed', error);
-        var err = document.createElement('div');
-        err.className = 'empty-note';
-        err.textContent = 'Could not load the queue — see the browser console for details. A missing Firestore index is the usual cause.';
-        els.modFeed.appendChild(err);
+      .catch(function (err) {
+        console.error('Queue load failed', err);
+        els.modFeed.appendChild(emptyState('Could not load the queue.', 'See the browser console — a missing Firestore index is the usual cause.'));
       });
   }
-
-  function setStatus(id, status, card) {
+  function setStatus(id, status, node) {
     confessionsRef.doc(id).update({ status: status }).then(function () {
-      card.remove();
-      if (!els.modFeed.children.length) loadModerationQueue();
-      if (status === 'approved') { resetFeed(); loadFeedPage(); }
-    }).catch(function (error) {
-      console.error('Status update failed', error);
-      window.alert('Could not update that post.');
+      node.remove();
+      if (!els.modFeed.children.length) loadQueue();
+      if (status === 'approved') { resetFeed(); loadFeed(); }
+    }).catch(function (err) {
+      console.error('Status update failed', err);
+      alert('Could not update that post.');
     });
   }
+  els.refreshQueue.addEventListener('click', loadQueue);
 
-  els.refreshQueueBtn.addEventListener('click', loadModerationQueue);
+  // ==========================================================================
+  // Auth
+  // ==========================================================================
+  function anonMode() {
+    isAdmin = false;
+    $('view-mod').hidden = true;
+    $('view-mod').classList.remove('active');
+    els.modToggle.textContent = 'Moderator sign-in';
+  }
+  function adminMode() {
+    isAdmin = true;
+    $('view-mod').hidden = false;
+    els.modToggle.textContent = 'Sign out of moderation';
+    loadQueue();
+    show('mod');
+  }
+  auth.onAuthStateChanged(function (user) {
+    currentUser = user;
+    if (!user) {
+      anonMode();
+      auth.signInAnonymously().catch(function (err) {
+        console.error('Anonymous sign-in failed', err);
+        setNotice(els.composeNotice, 'Could not connect. Reload the page.', 'error');
+        els.submitBtn.disabled = true;
+      });
+      return;
+    }
+    els.submitBtn.disabled = false;
+    if (user.isAnonymous) { anonMode(); return; }
+    adminsRef.doc(user.uid).get().then(function (snap) {
+      if (snap.exists) adminMode();
+      else { anonMode(); alert('That account is not a moderator on this site.'); auth.signOut(); }
+    }).catch(function (err) { console.error('Admin check failed', err); anonMode(); });
+  });
+  els.modToggle.addEventListener('click', function () {
+    if (isAdmin || (currentUser && !currentUser.isAnonymous)) { auth.signOut(); show('rules'); return; }
+    var provider = new firebase.auth.GoogleAuthProvider();
+    var flow = window.matchMedia('(max-width: 640px)').matches
+      ? auth.signInWithRedirect(provider)
+      : auth.signInWithPopup(provider);
+    if (flow && flow.catch) flow.catch(function (err) { console.error('Moderator sign-in failed', err); });
+  });
+  auth.getRedirectResult().catch(function (err) { console.error(err); });
 
   // ==========================================================================
   // Reporting
   // ==========================================================================
-  function renderReportReasons() {
-    renderPills(
-      els.reportReasons,
-      REPORT_REASONS.map(function (r) { return { key: r, label: r }; }),
-      selectedReportReason,
-      function (key) { selectedReportReason = key; renderReportReasons(); }
-    );
+  function renderReasons() {
+    renderChips(els.reportReasons, REPORT_REASONS.map(function (r) { return { key: r, label: r }; }),
+      reportReason, 'cat-chip', function (k) { reportReason = k; renderReasons(); });
   }
-
-  function openReportModal(confessionId) {
-    reportTargetId = confessionId;
-    selectedReportReason = REPORT_REASONS[0];
-    renderReportReasons();
+  function openReport(id) {
+    reportTarget = id;
+    reportReason = REPORT_REASONS[0];
+    renderReasons();
     setNotice(els.reportNotice, '', '');
-    els.reportSendBtn.disabled = false;
-    openOverlay(els.reportBackdrop, els.reportBackdrop.querySelector('[role="dialog"]'));
+    els.reportSend.disabled = false;
+    els.reportBackdrop.classList.add('open');
+    els.reportBackdrop.inert = false;
+    els.reportBackdrop.setAttribute('aria-hidden', 'false');
+    els.reportBackdrop.querySelector('[role="dialog"]').focus();
   }
-
-  els.reportCancelBtn.addEventListener('click', function () { closeOverlay(els.reportBackdrop); });
-
-  els.reportSendBtn.addEventListener('click', function () {
-    if (!reportTargetId || !currentUser) return;
-    els.reportSendBtn.disabled = true;
+  function closeReport() {
+    els.reportBackdrop.classList.remove('open');
+    els.reportBackdrop.inert = true;
+    els.reportBackdrop.setAttribute('aria-hidden', 'true');
+  }
+  els.reportCancel.addEventListener('click', closeReport);
+  els.reportBackdrop.addEventListener('click', function (e) { if (e.target === els.reportBackdrop) closeReport(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && els.reportBackdrop.classList.contains('open')) closeReport();
+  });
+  els.reportSend.addEventListener('click', function () {
+    if (!reportTarget || !currentUser) return;
+    els.reportSend.disabled = true;
     setNotice(els.reportNotice, 'Sending…', '');
-    reportsRef.add({
-      confessionId: reportTargetId,
-      reason: selectedReportReason,
-      createdAt: serverTimestamp()
-    }).then(function () {
-      reportedIds[reportTargetId] = true;
-      setNotice(els.reportNotice, 'Thanks — a moderator will look at it.', 'ok');
-      window.setTimeout(function () {
-        closeOverlay(els.reportBackdrop);
-        resetFeed();
-        loadFeedPage();
-      }, 900);
-    }).catch(function (error) {
-      console.error('Report failed', error);
-      els.reportSendBtn.disabled = false;
-      setNotice(els.reportNotice, 'Could not send that report.', 'error');
-    });
+    reportsRef.add({ confessionId: reportTarget, reason: reportReason, createdAt: serverTimestamp() })
+      .then(function () {
+        reported[reportTarget] = true;
+        setNotice(els.reportNotice, 'Thanks — a moderator will look at it.', 'ok');
+        setTimeout(function () { closeReport(); resetFeed(); loadFeed(); }, 900);
+      })
+      .catch(function (err) {
+        console.error('Report failed', err);
+        els.reportSend.disabled = false;
+        setNotice(els.reportNotice, 'Could not send that report.', 'error');
+      });
   });
 })();
 </script>
